@@ -1,46 +1,47 @@
 import React, { useState } from 'react';
 
-const LoginForm = ({ onLoginSuccess, onShowSignup, type = 'user' }) => { // Added type prop, default to 'user'
+const LoginForm = ({ onLoginSuccess, onShowSignup }) => { // Removed 'type' prop
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let success = false;
-    if (type === 'admin') {
-      // Simulated admin login credentials
-      if (username === 'admin' && password === 'adminpass') {
-        success = true;
-      } else {
-        setMessage('Admin login failed. Please check your username and password.');
-      }
-    } else {
-      // Simulated user login credentials
-      if (username === 'user' && password === 'pass') {
-        success = true;
-      } else {
-        setMessage('Login failed. Please check your username and password.');
-      }
-    }
+    setMessage('');
 
-    if (success) {
-      onLoginSuccess();
+    // This form now *only* targets the user login endpoint
+    const endpoint = 'http://localhost:5000/api/auth/login';
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(data.message);
+        onLoginSuccess(data.token, data.role);
+      } else {
+        setMessage(data.message || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setMessage('Network error. Please try again later.');
     }
   };
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        {type === 'admin' ? 'Admin Login' : 'Login to BagHaven'}
-      </h2>
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login to BagHaven</h2> {/* Fixed title */}
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label htmlFor="username" className="block text-gray-700 text-sm font-semibold mb-2">Username:</label>
           <input
             type="text"
             id="username"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" // Changed focus ring to red
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -51,24 +52,19 @@ const LoginForm = ({ onLoginSuccess, onShowSignup, type = 'user' }) => { // Adde
           <input
             type="password"
             id="password"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" // Changed focus ring to red
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {message && <p className="text-red-500 text-center text-sm">{message}</p>}
+        {message && <p className={`text-center text-sm ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
         <button
           type="submit"
-          className="w-full bg-red-600 text-white py-3 rounded-md font-bold text-lg hover:bg-red-700 transition-colors duration-200 shadow-md" // Changed button color to red
+          className="w-full bg-red-600 text-white py-3 rounded-md font-bold text-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
         >
-          {type === 'admin' ? 'Admin Login' : 'Login'}
+          Login
         </button>
-        {type !== 'admin' && ( // Only show signup link for regular user login
-          <p className="text-center text-gray-600 text-sm mt-4">
-            Don't have an account? <a href="#" onClick={onShowSignup} className="text-red-600 hover:underline font-medium">Sign up</a>
-          </p>
-        )}
       </form>
     </div>
   );

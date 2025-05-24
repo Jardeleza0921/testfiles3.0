@@ -69,8 +69,8 @@ const Header = ({ onToggleSidebar, cartItemCount, onCartIconClick }) => {
           </button>
           {pageDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl z-40">
-              <button onClick={() => navigateToPage("/")} className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 w-full text-left">User Page</button>
-              <button onClick={() => navigateToPage("/admin/dashboard")} className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 w-full text-left">Admin Page</button>
+              <button onClick={() => navigateToPage("/login")} className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 w-full text-left">User Page</button>
+              <button onClick={() => navigateToPage("/admin/login")} className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 w-full text-left">Admin Page</button>
             </div>
           )}
         </div>

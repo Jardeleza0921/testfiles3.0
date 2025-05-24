@@ -6,21 +6,40 @@ const SignupForm = ({ onShowLogin }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage('');
+
     if (newPassword !== confirmPassword) {
       setMessage('Passwords do not match.');
       return;
     }
-    // Simulate successful signup
-    setMessage(`Account created for ${newUsername}. You can now log in.`);
-    setNewUsername('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setTimeout(() => {
-      onShowLogin();
-      setMessage('');
-    }, 1500); // Redirect to login after a short delay
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername, password: newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(data.message);
+        setNewUsername('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => {
+          onShowLogin();
+          setMessage('');
+        }, 1500);
+      } else {
+        setMessage(data.message || 'Registration failed.');
+      }
+    } catch (error) {
+      console.error('Network error during registration:', error);
+      setMessage('Network error. Please try again later.');
+    }
   };
 
   return (
@@ -60,7 +79,7 @@ const SignupForm = ({ onShowLogin }) => {
             required
           />
         </div>
-        {message && <p className="text-green-600 text-center text-sm">{message}</p>}
+        {message && <p className={`text-center text-sm ${message.includes('created') ? 'text-green-600' : 'text-red-500'}`}>{message}</p>}
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-3 rounded-md font-bold text-lg hover:bg-green-700 transition-colors duration-200 shadow-md"
@@ -68,7 +87,7 @@ const SignupForm = ({ onShowLogin }) => {
           Sign Up
         </button>
         <p className="text-center text-gray-600 text-sm mt-4">
-          Already have an account? <a href="#" onClick={onShowLogin} className="text-blue-600 hover:underline font-medium">Login</a>
+          Already have an account? <button onClick={onShowLogin} className="text-blue-600 hover:underline font-medium" style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}>Login</button>
         </p>
       </form>
     </div>

@@ -5,7 +5,7 @@ const Sidebar = ({ isSidebarOpen }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const isLoggedIn = true; // Replace with your actual authentication check
-  const user = { name: 'John Doe', email: 'john.doe@example.com' }; // Replace with your actual user data
+  const user = { name: 'Jardeleza', email: 'Jardeleza@example.com' }; // Replace with your actual user data
 
   const adminSidebarItems = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
